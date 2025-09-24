@@ -1,0 +1,106 @@
+// SS2.X
+
+var creditmemoSearchObj = search.create({
+   type: "creditmemo",
+   settings:[{"name":"consolidationtype","value":"ACCTTYPE"}],
+   filters:
+   [
+      ["type","anyof","CustCred"], //类型 是 贷项通知单
+      "AND", 
+      ["custbody_tkrq","isnotempty",""], // 客户退款日期 (自定义 主体) 不为空
+      "AND", 
+      ["status","anyof","CustCred:A"], //状态 等于 贷项通知单:未结
+      "AND", 
+      ["mainline","is","T"]  // 主行是对的
+   ],
+   columns:
+   [
+      search.createColumn({name: "internalid", label: "内部 ID"}),
+      search.createColumn({name: "custbody_tkrq", label: "客户退款日期"}),
+      search.createColumn({
+         name: "internalid",
+         join: "customer",
+         label: "客户内部ID"
+      }),
+      search.createColumn({name: "subsidiary", label: "子公司"}),
+      search.createColumn({name: "createdfrom", label: "创建自"}),
+      search.createColumn({name: "otherrefnum", label: "采购订单/支票号码"}),
+      search.createColumn({name: "custbody_aio_account", label: "AIO Account"})
+   ]
+});
+var searchResultCount = creditmemoSearchObj.runPaged().count;
+log.debug("creditmemoSearchObj result count",searchResultCount);
+creditmemoSearchObj.run().each(function(result){
+   // .run().each has a limit of 4,000 results
+   return true;
+});
+
+/*
+creditmemoSearchObj.id="customsearch1758598341605";
+creditmemoSearchObj.title="待生成客户退款列表 (copy)";
+var newSearchId = creditmemoSearchObj.save();
+*/
+
+
+
+
+
+
+
+// SS2.X Run in Console
+require(['N'], function(N) {
+for(var n in N){window[n] = N[n];};
+try{
+    
+var s=search.load({id:"customsearch1936",type:"creditmemo"});
+console.log(s.toJSON());
+console.log(s.runPaged().count);
+s.run().each(function(r){
+   console.log(r.toJSON());
+   return true;
+});
+
+} catch(e){console.error(e.message);}})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// SS1.0
+var creditmemoSearch = nlapiSearchRecord("creditmemo",null,
+[
+   ["type","anyof","CustCred"], 
+   "AND", 
+   ["custbody_tkrq","isnotempty",""], 
+   "AND", 
+   ["status","anyof","CustCred:A"], 
+   "AND", 
+   ["mainline","is","T"]
+], 
+[
+   new nlobjSearchColumn("internalid"), 
+   new nlobjSearchColumn("custbody_tkrq"), 
+   new nlobjSearchColumn("internalid","customer",null), 
+   new nlobjSearchColumn("subsidiary"), 
+   new nlobjSearchColumn("createdfrom"), 
+   new nlobjSearchColumn("otherrefnum"), 
+   new nlobjSearchColumn("custbody_aio_account")
+]
+);
+
