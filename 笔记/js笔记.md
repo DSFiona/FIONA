@@ -1,3 +1,4 @@
+[TOC]
 # JSing 笔记
 ## JS基础信息
 ### Chrome snippets 小脚本

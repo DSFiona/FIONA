@@ -36,13 +36,13 @@ custbody_store_credit	店铺信用抵扣	使用的店铺信用金额
 
 预收款相关列
 字段名	标签	公式/说明
-custbody130	商品预收款金额	商品部分的预收款
-custbody133	运费预收款金额	运费部分的预收款
+custbody130	商品预收款金额	商品部分的预收款（含商品税）   
+custbody133	运费预收款金额	运费部分的预收款（含运费税）
+
 formulanumeric	预收款总金额	{custbody130} + {custbody133}
 formulanumeric	订单总计	{fxamount}
 formulanumeric	差异	预收款总金额 - 订单总计
-formulatext	金额是否相等	判断预收款是否等于订单总额
-
+formulatext	金额是否相等	判断预收款是否等于订单总额 
 
 税务相关列
 字段名	标签	公式/说明
