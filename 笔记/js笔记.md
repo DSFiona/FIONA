@@ -1,4 +1,5 @@
 # JSing 笔记
+## JS基础信息
 ### Chrome snippets 小脚本
 ### js输出
 - 使用 window.alert() 弹出警告框。
@@ -29,7 +30,7 @@ JavaScript 字面量
 - 变量名不能以数字开头。
 - 变量名应该使用驼峰命名法。
 
-### 下表列出了 JavaScript 语句标识符 (关键字) 
+### 语句标识符 (关键字) 
 | 语句         | 描述|
 | ------------ | ----------------- |
 | break        | 用于跳出循环。                                                   |
@@ -48,11 +49,8 @@ JavaScript 字面量
 | var          | 声明一个变量。                                                   |
 | while        | 当条件语句为 true 时，执行语句块。                               |
 
-
----
-
-
-## 可以使用 var、let 和 const 关键字来声明变量。
+### 变量声明
+可以使用 var、let 和 const 关键字来声明变量。
 1. **var**：ES5 引入的变量声明方式，具有**函数作用域**。
     1. 变量可以重复声明（覆盖原变量）。
     2. 变量未赋值时，默认值为 undefined。
@@ -82,10 +80,10 @@ num = 10;
 2. **const：**ES6 引入的**常量声**明方式，具有块级作用域，且值不可变。
    - 一旦赋值后，变量的值不能再被修改。
 
-## 数据类型
+### 数据类型
 - 值类型(基本类型)：字符串（String）、数字(Number)、布尔(Boolean)、空（Null）、未定义（Undefined）、Symbol。
 
-- 引用数据类型（对象类型）：对象(Object)、数组(Array)、函数(Function)，
+- 引用数据类型（对象类型）：对象(Object)、数组(Array)、函数(Function)
 
 - 还有两个特殊的对象：正则（RegExp）和日期（Date）。
 
@@ -123,4 +121,41 @@ var person={firstname:"John", lastname:"Doe", id:5566};
 name=person.lastname;
 name=person["lastname"];
 ```
+
+### 对象（变量的容器）
+对象是属性的集合，属性由键值对组成。对象可以包含多个值（多个变量），每个值以 name:value 对呈现。
+```javascript
+var car = {name:"Fiat", model:500, color:"white"};
+
+// 3 个值 ("Fiat", 500, "white") 赋予变量 car。
+```
+#### 对象方法
+对象方法通过添加 () 调用 (作为一个函数)
+
+```javascript
+var person = {
+    firstName: "John",
+    lastName: "Doe",
+    age: 50,
+    eyeColor: "blue",
+    fullName: function() {
+        return this.firstName + " " + this.lastName;
+    }
+};
+
+try {
+    var name = person.fullName(); // 访问了 person 对象的 fullName() 方法
+    console.log(name); // 输出: John Doe
+    // name = person.fullName; // 这行代码是多余的，且会返回 fullName 函数本身而不是其调用结果
+} catch (error) {
+    console.error("调用 fullName 方法时出错: " + error.message);
+}
+```
+
+
+
+
+
+
+
 
