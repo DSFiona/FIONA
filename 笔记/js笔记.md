@@ -130,7 +130,7 @@ var car = {name:"Fiat", model:500, color:"white"};
 
 // 3 个值 ("Fiat", 500, "white") 赋予变量 car。
 ```
-#### 对象方法
+对象方法
 对象方法通过添加 () 调用 (作为一个函数)
 
 ```javascript
@@ -154,9 +154,26 @@ try {
 ```
 
 
+### 函数
+函数是执行特定任务或计算的代码块。函数通过关键字 function 定义，并可以接受参数和返回值。可由 JavaScript 在任何位置进行调用。
 
+```javascript
+var var1 = 1; // 不可配置全局属性
+var2 = 2; // 没有使用 var 声明，可配置全局属性
 
+console.log(this.var1); // 1
+console.log(window.var1); // 1
+console.log(window.var2); // 2
 
+delete var1; // false 无法删除
+console.log(var1); //1
+
+delete var2; 
+console.log(delete var2); // true
+console.log(var2); // 已经删除 报错变量未定义
+```
+向未声明的 JavaScript 变量分配值
+如果您把值赋给尚未声明的变量，该变量将被自动作为 window 的一个属性。
 
 
 

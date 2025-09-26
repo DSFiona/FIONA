@@ -8,88 +8,108 @@ define(['N/record', 'N/log', 'N/transaction','N/search','N/transaction'], functi
 
         
         try{
+          var newRecord = context.newRecord; //获取即将保存的新记录。
 
+          var AIO = newRecord.getValue("custbody_aio_account");
+          // 决定使用的新旧记录
+          // 如果AIO不等于"193"，且操作类型不是编辑，则返回。
+          // 如果AIO等于"193"，则oldRecord等于newRecord
+          if (AIO !== "193") {
+            var oldRecord = context.oldRecord;
+            if (context.type !== "edit") return;
+          } else {
+            var oldRecord = newRecord;
+          }
 
-            var newRecord = context.newRecord;
+          // 检查禁用税码计算字段
+          var disable = newRecord.getValue(
+            "custbody_ava_disable_tax_calculation"
+          );
+          if (AIO !== "159" && AIO !== "193") return;
+          if (disable) return;
 
-            var AIO = newRecord.getValue("custbody_aio_account")
-            if(AIO!=="193"){
-              var oldRecord = context.oldRecord;
-              if (context.type !== 'edit')return
-            }else{
-              var oldRecord = newRecord;
+          // 获取新的和旧的发货地址 州和邮编
+          var newShipstate = newRecord.getValue("Shipstate");
+          //        var newphone = newRecord.getValue("shipphone")
+          var newZIP = newRecord.getValue("shipzip");
+          var oldShipstate = oldRecord.getValue("Shipstate");
+          //        var oldphone = oldRecord.getValue("shipphone")
+          var oldZIP = oldRecord.getValue("shipzip");
+          //获取备注信息 特殊触发条件
+          var newMemo = newRecord.getValue("custbody139");
+          var oldMemo = oldRecord.getValue("custbody139");
+          // log.debug("oldMemo",oldMemo)
+          // log.debug("newMemo",newMemo)
+
+          // 检查项目子列表
+        //   count 和 oldcount: 获取新旧记录的项目子列表行数。
+        // isPaymentItem: 标记是否添加了类型为“Payment”的项目。
+          var count = newRecord.getLineCount("item");
+          var oldcount = oldRecord.getLineCount("item");
+          var isPaymentItem = false;
+
+          if (oldcount < count) {
+            var itemType = newRecord.getSublistValue(
+              "item",
+              "itemtype",
+              count - 1
+            );
+
+            if (itemType == "Payment") {
+              isPaymentItem = true;
             }
+          }
+          //更改州、邮编、电话订单
+          //        log.debug("newphone",newphone)
+          //        log.debug("oldphone",oldphone)
+          //        log.debug("equal",newphone==oldphone)
 
-          
-            var disable = newRecord.getValue("custbody_ava_disable_tax_calculation")
-            if(AIO !=="159"&& AIO !=="193") return
-            if(disable) return
-          
-            // 获取新的和旧的地址
-            var newShipstate = newRecord.getValue("Shipstate")
-//        var newphone = newRecord.getValue("shipphone")
-            var newZIP = newRecord.getValue("shipzip")
-            var oldShipstate = oldRecord.getValue("Shipstate")
-//        var oldphone = oldRecord.getValue("shipphone")
-            var oldZIP = oldRecord.getValue("shipzip")
-            //特殊触发条件
-            var newMemo = newRecord.getValue("custbody139")
-            var oldMemo = oldRecord.getValue("custbody139")
-            // log.debug("oldMemo",oldMemo)
-            // log.debug("newMemo",newMemo)
-            
 
-            var count = newRecord.getLineCount('item');
-            var oldcount = oldRecord.getLineCount('item')
-            var isPaymentItem = false
+        // 地址变更触发条件
+        // 如果发货州或邮编发生变化，则调用setTax函数计算并设置税码
+          if (newShipstate != oldShipstate || newZIP != oldZIP) {
+            setTax(oldRecord, newRecord);
+            log.debug("地址变更开始计算税率AIO:", AIO);
+          }
+          // 备注触发条件 
+          // 如果备注内容为“固定税码”，则调用setTax函数重新计算并设置税码。
+          if (newMemo != oldMemo && newMemo == "固定税码") {
+            setTax(oldRecord, newRecord);
+            log.debug("已根据备注重新生成税码", "已根据备注重新生成税码");
+          }
 
-            if(oldcount<count){
-                var itemType = newRecord.getSublistValue('item','itemtype',count-1)
-
-                if(itemType == "Payment"){
-                    isPaymentItem = true
-                }
+          //店铺信用抵扣订单2025/9/25 改成订单创建时检查店铺信用算固定税率，这样的话后续店铺信用就能正常推送
+          if (context.type === "create") {
+            var storeCredit = newRecord.getValue("custbody_store_credit");
+            if (storeCredit > 0) {
+              setTax(oldRecord, newRecord);
+              log.debug(
+                "创建时店铺信用大于0开始计算税率",
+                "创建时店铺信用大于0开始计算税率"
+              );
             }
-            //更改州、邮编、电话订单
-//        log.debug("newphone",newphone)
-//        log.debug("oldphone",oldphone)
-//        log.debug("equal",newphone==oldphone)
-            if (newShipstate != oldShipstate || newZIP != oldZIP) {
-                setTax(oldRecord,newRecord)
-              log.debug("地址变更开始计算税率AIO:",AIO)
-            }
-
-            if (newMemo != oldMemo && newMemo == "固定税码"){
-                setTax(oldRecord,newRecord)
-                log.debug("已根据备注重新生成税码","已根据备注重新生成税码")
-            }
-            
-
-            //店铺信用抵扣订单2025/9/25 改成订单创建时就计算固定税率，这样的话后续店铺信用就能正常推送
-            if (context.type === 'create') {
-                var storeCredit = newRecord.getValue("custbody_store_credit");
-                if (storeCredit > 0) {
-                    setTax(oldRecord, newRecord);
-                    log.debug("创建时店铺信用大于0开始计算税率", "创建时店铺信用大于0开始计算税率");
-                }
-            }
-
-          if(AIO =='193'){
-             log.debug("zg线下店铺","1")
-             setTax(oldRecord,newRecord)
-
+          }
+// 特定店铺处理
+          if (AIO == "193") {
+            log.debug("zg线下店铺", "1");
+            setTax(oldRecord, newRecord);
           }
         }catch(e){
             log.error("message",e)
         }
     }
-
+// setTax 函数
+// setTax函数用于计算并设置商品税码和运费税码。
+// 计算商品税码和运费税码。
+// 如果找不到相应的税码，则创建一个新的税码记录。
+// 为每个项目设置相应的税码。
     function setTax(oldRecord,newRecord){
         log.debug("oldRecord",oldRecord)
         log.debug("newRecord",newRecord)
         try{
             var itemTaxId
             var oldTax = oldRecord.getValue('taxamountoverride')
+            // 清除税额覆盖字段
             newRecord.setValue({
                 fieldId: 'taxamountoverride',
                 value: null // 或者使用 null 来清除该字段
