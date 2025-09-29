@@ -28,3 +28,12 @@ graph TD
   A[开始] --> B{条件判断}
   B -->|是| C[执行操作]
   B -->|否| D[结束]
+```
+
+
+&nbsp;  是换行
+
+<div STYLE="page-break-after: always;"></div>  
+是分页符
+
+<font size=6> 是字体大小6 </font>
